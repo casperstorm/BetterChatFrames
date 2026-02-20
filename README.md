@@ -2,6 +2,8 @@
 
 A World of Warcraft addon that enhances the default chat frames.
 
+<img src="bcf.png" alt="icon" width="128"> 
+
 ![BetterChatFrames](asset.png)
 
 ## Features
