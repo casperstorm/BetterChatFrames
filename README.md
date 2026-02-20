@@ -24,6 +24,8 @@ Type `/bcf` to open the configuration window.
 1. Download the latest release
 2. Extract the `BetterChatFrames` folder to your `Interface/AddOns` directory
 
-## Links
+## Addons on curse
 
 - https://www.curseforge.com/wow/addons/better-chat-frames
+- https://www.curseforge.com/wow/addons/better-raid-frames
+- https://www.curseforge.com/wow/addons/better-tooltips
