@@ -24,8 +24,10 @@ Type `/bcf` to open the configuration window.
 1. Download the latest release
 2. Extract the `BetterChatFrames` folder to your `Interface/AddOns` directory
 
-## Addons on curse
+## Links
 
 - https://www.curseforge.com/wow/addons/better-chat-frames
-- https://www.curseforge.com/wow/addons/better-raid-frames
-- https://www.curseforge.com/wow/addons/better-tooltips
+
+### License
+
+BetterChatFrames is released under the GPL-3.0 License. For more details, see the LICENSE file.
