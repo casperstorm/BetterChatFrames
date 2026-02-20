@@ -6,6 +6,8 @@ local defaults = {
     timestampEnabled = true,
     timestampFormat = "[%H:%M:%S]",
     hideActionBar = false,
+    clampToScreen = false,
+    moveInputAboveChat = false,
     hideSocialIcon = false,
     hideTabBackground = false,
     inputBoxOpacity = 1.0,
@@ -37,7 +39,7 @@ function Addon:SetSetting(key, value)
         Addon:ApplyTimestampSettings()
     end
 
-    if (key == "hideActionBar" or key == "hideSocialIcon" or key == "hideTabBackground" or key == "inputBoxOpacity") and Addon.ApplyChatUISettings then
+    if (key == "hideActionBar" or key == "clampToScreen" or key == "moveInputAboveChat" or key == "hideSocialIcon" or key == "hideTabBackground" or key == "inputBoxOpacity") and Addon.ApplyChatUISettings then
         Addon:ApplyChatUISettings()
     end
 end

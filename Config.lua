@@ -182,7 +182,7 @@ end
 
 local function CreateConfigFrame()
     local frame = CreateFrame("Frame", "BetterChatFramesConfigFrame", UIParent, "BasicFrameTemplateWithInset")
-    frame:SetSize(400, 395)
+    frame:SetSize(400, 465)
     frame:SetPoint("CENTER")
     frame:SetMovable(true)
     frame:EnableMouse(true)
@@ -208,6 +208,16 @@ local function CreateConfigFrame()
 
     local hideActionBarCheckbox = CreateCheckbox(content, "Hide chat action bar", "hideActionBar")
     hideActionBarCheckbox:SetPoint("TOPLEFT", content, "TOPLEFT", 0, y)
+
+    y = y - 35
+
+    local clampToScreenCheckbox = CreateCheckbox(content, "Clamp chat frames to screen", "clampToScreen")
+    clampToScreenCheckbox:SetPoint("TOPLEFT", content, "TOPLEFT", 0, y)
+
+    y = y - 35
+
+    local moveInputAboveChatCheckbox = CreateCheckbox(content, "Move text input above chat frame", "moveInputAboveChat")
+    moveInputAboveChatCheckbox:SetPoint("TOPLEFT", content, "TOPLEFT", 0, y)
 
     y = y - 35
 

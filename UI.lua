@@ -4,6 +4,15 @@ local eventFrame = CreateFrame("Frame")
 local hooksInstalled = false
 local inButtonSideHook = false
 local socialIconHooked = false
+local SetEditBoxPosition
+
+local function SetChatFrameClampState(chatFrame, clampToScreen)
+    if not chatFrame or not chatFrame.SetClampedToScreen then
+        return
+    end
+
+    chatFrame:SetClampedToScreen(clampToScreen and true or false)
+end
 
 local function ClampOpacity(value)
     if type(value) ~= "number" then
@@ -82,7 +91,10 @@ local function ReapplyHiddenLayoutIfNeeded(chatFrame)
     if not chatFrame or not chatFrame.GetName then
         return
     end
-    if not Addon:GetSetting("hideActionBar") then
+    local hideActionBar = Addon:GetSetting("hideActionBar")
+    local clampToScreen = Addon:GetSetting("clampToScreen")
+    local moveInputAboveChat = Addon:GetSetting("moveInputAboveChat")
+    if not hideActionBar and clampToScreen and not moveInputAboveChat then
         return
     end
 
@@ -92,12 +104,14 @@ local function ReapplyHiddenLayoutIfNeeded(chatFrame)
     end
 
     local buttonFrame = _G["ChatFrame" .. index .. "ButtonFrame"]
-    if not buttonFrame then
-        return
+    if hideActionBar and buttonFrame then
+        -- Blizzard can reset layout during updates; enforce collapsed layout again.
+        SetButtonFrameState(buttonFrame, chatFrame, true, true)
     end
+    SetChatFrameClampState(chatFrame, clampToScreen)
 
-    -- Blizzard can reset layout during updates; enforce collapsed layout again.
-    SetButtonFrameState(buttonFrame, chatFrame, true, true)
+    local editBox = _G["ChatFrame" .. index .. "EditBox"]
+    SetEditBoxPosition(editBox, chatFrame, moveInputAboveChat)
 end
 
 local function SetEditBoxTextureAlpha(editBox, alpha)
@@ -111,6 +125,52 @@ local function SetEditBoxTextureAlpha(editBox, alpha)
             region:SetAlpha(alpha)
         end
     end
+end
+
+local function SaveEditBoxAnchors(editBox)
+    if not editBox or editBox._bcfSavedPoints then
+        return
+    end
+
+    editBox._bcfSavedPoints = {}
+    for i = 1, editBox:GetNumPoints() do
+        local point, relativeTo, relativePoint, xOffset, yOffset = editBox:GetPoint(i)
+        editBox._bcfSavedPoints[i] = {
+            point = point,
+            relativeTo = relativeTo,
+            relativePoint = relativePoint,
+            xOffset = xOffset,
+            yOffset = yOffset,
+        }
+    end
+end
+
+local function RestoreEditBoxAnchors(editBox)
+    if not editBox or not editBox._bcfSavedPoints then
+        return
+    end
+
+    editBox:ClearAllPoints()
+    for _, anchor in ipairs(editBox._bcfSavedPoints) do
+        editBox:SetPoint(anchor.point, anchor.relativeTo, anchor.relativePoint, anchor.xOffset, anchor.yOffset)
+    end
+end
+
+SetEditBoxPosition = function(editBox, chatFrame, moveAboveChat)
+    if not editBox or not chatFrame then
+        return
+    end
+
+    SaveEditBoxAnchors(editBox)
+
+    if moveAboveChat then
+        editBox:ClearAllPoints()
+        editBox:SetPoint("BOTTOMLEFT", chatFrame, "TOPLEFT", -5, 18)
+        editBox:SetPoint("BOTTOMRIGHT", chatFrame, "TOPRIGHT", 8, 18)
+        return
+    end
+
+    RestoreEditBoxAnchors(editBox)
 end
 
 local function SetTabBackgroundHidden(tab, hideBackground)
@@ -170,6 +230,8 @@ end
 
 function Addon:ApplyChatUISettings()
     local hideActionBar = Addon:GetSetting("hideActionBar")
+    local clampToScreen = Addon:GetSetting("clampToScreen")
+    local moveInputAboveChat = Addon:GetSetting("moveInputAboveChat")
     local hideSocialIcon = Addon:GetSetting("hideSocialIcon")
     local hideTabBackground = Addon:GetSetting("hideTabBackground")
     local inputBoxOpacity = ClampOpacity(Addon:GetSetting("inputBoxOpacity"))
@@ -178,11 +240,13 @@ function Addon:ApplyChatUISettings()
         local chatFrame = _G["ChatFrame" .. i]
         local buttonFrame = _G["ChatFrame" .. i .. "ButtonFrame"]
         SetButtonFrameState(buttonFrame, chatFrame, hideActionBar, false)
+        SetChatFrameClampState(chatFrame, clampToScreen)
 
         local tab = _G["ChatFrame" .. i .. "Tab"]
         SetTabBackgroundHidden(tab, hideTabBackground)
 
         local editBox = _G["ChatFrame" .. i .. "EditBox"]
+        SetEditBoxPosition(editBox, chatFrame, moveInputAboveChat)
         SetEditBoxTextureAlpha(editBox, inputBoxOpacity)
     end
 
@@ -204,12 +268,32 @@ function Addon:HookChatUI()
         end)
     end)
 
+    hooksecurefunc("ChatEdit_UpdateHeader", function(editBox)
+        if not editBox or not editBox.chatFrame then
+            return
+        end
+        SetEditBoxPosition(editBox, editBox.chatFrame, Addon:GetSetting("moveInputAboveChat"))
+    end)
+
     if not hooksInstalled then
         hooksecurefunc("FCF_UpdateButtonSide", function(chatFrame)
             inButtonSideHook = true
             ReapplyHiddenLayoutIfNeeded(chatFrame)
             inButtonSideHook = false
         end)
+
+        hooksecurefunc("FloatingChatFrame_UpdateBackgroundAnchors", function(chatFrame)
+            ReapplyHiddenLayoutIfNeeded(chatFrame)
+        end)
+
+        hooksecurefunc("FCF_DockFrame", function(chatFrame)
+            ReapplyHiddenLayoutIfNeeded(chatFrame)
+        end)
+
+        hooksecurefunc("FCF_UnDockFrame", function(chatFrame)
+            ReapplyHiddenLayoutIfNeeded(chatFrame)
+        end)
+
         hooksInstalled = true
     end
 
