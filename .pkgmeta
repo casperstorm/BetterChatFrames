@@ -1,0 +1,10 @@
+package-as: BetterChatFrames
+
+ignore:
+  - .github
+  - README.md
+  - "*.png"
+  - .gitignore
+  - .pkgmeta
+
+enable-nolib-creation: no

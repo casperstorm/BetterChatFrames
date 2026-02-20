@@ -1,0 +1,15 @@
+## Interface: 120001, 120000
+## Interface-Retail: 120001, 120000
+## Title: BetterChatFrames
+## Notes: Lightweight chat enhancements for default chat frames
+## Author: casperstorm
+## Version: @project-version@
+## SavedVariables: BetterChatFramesDB
+## IconTexture: Interface\Icons\INV_Misc_Note_01
+## X-Curse-Project-ID: 1467143
+
+BetterChatFrames.lua
+Url.lua
+Timestamp.lua
+UI.lua
+Config.lua
